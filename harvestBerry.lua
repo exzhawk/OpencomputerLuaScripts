@@ -1,39 +1,37 @@
---
 -- Created by IntelliJ IDEA.
 -- User: Epix
 -- Date: 2016/9/3
 -- Time: 15:59
--- To change this template use File | Settings | File Templates.
---
-W = 5
-D = 16
+
 local robot = require("robot")
-local computer = require("computer")
-function oneLine()
-    for i = 1, D do
-        robot.forward()
+function one_line()
+    repeat
+        local s, r = robot.forward()
+        print(s,r)
         robot.useDown()
-    end
-    for i = 1, D do
-        robot.back()
-    end
+    until s == nil and r ~= "already moving"
+
+    repeat
+        local s, r = robot.back()
+    until s == nil and r ~= "already moving"
 end
 
 function harvest()
-    for i = 1, W do
+    repeat
+        one_line()
         robot.turnLeft()
-        robot.forward()
+        local s,r = robot.forward()
         robot.turnRight()
-        oneLine()
-    end
+    until s == nil and r ~= "already moving"
     robot.turnRight()
-    for i = 1, W do
-        robot.forward()
-    end
+    repeat
+        local s, r = robot.forward()
+    until s == nil and r ~= "already moving"
     robot.turnLeft()
 end
 
 function main()
+    harvest()
     os.sleep(60)
 end
 
