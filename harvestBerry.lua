@@ -7,7 +7,7 @@ local robot = require("robot")
 function one_line()
     repeat
         local s, r = robot.forward()
-        print(s,r)
+--        print(s,r)
         robot.useDown()
     until s == nil and r ~= "already moving"
 
@@ -32,7 +32,7 @@ end
 
 function main()
     harvest()
-    os.sleep(60)
+    os.sleep(60*5)
 end
 
 while 1 do
