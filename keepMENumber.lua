@@ -132,6 +132,8 @@ end
 function doAction(action)
     if action == 'gen' then
         mergeTable()
+        gpu.setResolution(160, 50)
+        os.exit()
     else
         run()
     end
