@@ -23,7 +23,6 @@ local SAVE_FILENAME = 'keepTable.csv'
 
 --todo enhance robustness when recipes are not updated
 --todo log details to file or network
---todo allow ignore list
 --todo multithread
 
 
