@@ -99,19 +99,24 @@ function run()
         for ItemLabel, keepNumber in pairs(keepTable) do
             handle(event.pull(0))
             log(ItemLabel, 'CHECK')
-            local haveNumber = m.getItemsInNetwork({ label = ItemLabel })[1]['size']
-            if haveNumber < keepNumber then
-                local request = m.getCraftables({ label = ItemLabel })[1].request(keepNumber - haveNumber)
-                repeat
-                    local canceled, reason = request.isCanceled()
-                    if canceled then
-                        log(reason, 'FAIL')
-                        break
-                    end
-                until request.isDone()
-                log(ItemLabel, 'DONE')
+            local haveItem = m.getItemsInNetwork({ label = ItemLabel })[1]
+            if haveItem == nil then
+                log('No recipe', 'FAIL')
             else
-                log(ItemLabel, 'SKIP')
+                local haveNumber = haveItem['size']
+                if haveNumber < keepNumber then
+                    local request = m.getCraftables({ label = ItemLabel })[1].request(keepNumber - haveNumber)
+                    repeat
+                        local canceled, reason = request.isCanceled()
+                        if canceled then
+                            log(reason, 'FAIL')
+                            break
+                        end
+                    until request.isDone()
+                    log(ItemLabel, 'DONE')
+                else
+                    log(ItemLabel, 'SKIP')
+                end
             end
         end
     end
