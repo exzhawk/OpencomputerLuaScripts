@@ -92,10 +92,21 @@ function mergeTable()
     writeTable(workingTable)
 end
 
+function filterTable(itemTable)
+    local filteredTable = {}
+    for itemLabel, number in pairs(itemTable) do
+        if number ~= 0 then
+            filteredTable[itemLabel] = number
+        end
+    end
+    return filteredTable
+end
+
 function run()
     while 1 do
         handle(event.pull(0))
         local keepTable = readTable()
+        keepTable = filterTable(keepTable)
         for ItemLabel, keepNumber in pairs(keepTable) do
             handle(event.pull(0))
             log(ItemLabel, 'CHECK')
