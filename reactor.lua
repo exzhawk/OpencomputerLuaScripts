@@ -2,7 +2,7 @@
 -- Date: 2017/1/20
 -- Time: 13:56
 
-component = require("component")
+local component = require("component")
 function check(reactor)
     if reactor.getActive() == true and reactor.getEnergyStored() > 7500000 then
         reactor.setActive(false)
