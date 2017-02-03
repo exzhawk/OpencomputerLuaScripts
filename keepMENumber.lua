@@ -8,6 +8,8 @@
 
 --filename to save your requirement
 local SAVE_FILENAME = 'keepTable.csv'
+--do not craft items if free crafting cpu is lesser than this number
+local spareCpu = 2
 
 --Usage:
 --Requirement: a decent computer with adapter(connected to me controller) and screen(tier 3, portrait)
@@ -21,9 +23,7 @@ local SAVE_FILENAME = 'keepTable.csv'
 --one crafting unit. press `Enter` key to stop the program AFTER current job finished.
 
 
---todo enhance robustness when recipes are not updated
 --todo log details to file or network
---todo multithread
 
 
 local LEVEL_COLOR = {
@@ -114,30 +114,47 @@ function getItemCount(filter)
     end
 end
 
+function getAvailCpu()
+    local count = 0
+    local cpus = m.getCpus()
+    for _, cpu in ipairs(cpus) do
+        if cpu['busy'] == false then
+            count = count + 1
+        end
+    end
+    return count
+end
+
 function run()
+    local requestTable = {}
     while 1 do
         handle(event.pull(0))
         local keepTable = readTable()
         keepTable = filterTable(keepTable)
-        for ItemLabel, keepNumber in pairs(keepTable) do
+        for itemLabel, keepNumber in pairs(keepTable) do
             handle(event.pull(0))
-            log(ItemLabel, 'CHECK')
-            local haveNumber = getItemCount({ label = ItemLabel })
+            log(itemLabel, 'CHECK')
+            local haveNumber = getItemCount({ label = itemLabel })
             if haveNumber == nil then
-                log(ItemLabel, 'FAIL')
+                log(itemLabel, 'FAIL', 'no recipe')
             else
-                if haveNumber < keepNumber then
-                    local request = m.getCraftables({ label = ItemLabel })[1].request(keepNumber - haveNumber)
-                    repeat
-                        local canceled, reason = request.isCanceled()
-                        if canceled then
-                            log(reason, 'FAIL')
-                            break
-                        end
-                    until request.isDone()
-                    log(ItemLabel, 'DONE')
+                if requestTable[itemLabel] == nil then
+                    if haveNumber < keepNumber and getAvailCpu() > spareCpu then
+                        local request = m.getCraftables({ label = itemLabel })[1].request(keepNumber - haveNumber)
+                        requestTable[itemLabel] = request
+                    else
+                        log(itemLabel, 'SKIP')
+                    end
                 else
-                    log(ItemLabel, 'SKIP')
+                    local request = requestTable[itemLabel]
+                    local canceled, reason = request.isCanceled()
+                    if canceled then
+                        log(itemLabel, 'FAIL', reason)
+                        requestTable[itemLabel] = nil
+                    elseif request.isDone() then
+                        log(itemLabel, 'DONE')
+                        requestTable[itemLabel] = nil
+                    end
                 end
             end
         end
@@ -151,14 +168,18 @@ function handle(e, address, char, code, playerName)
     end
 end
 
-function log(text, level)
+function log(text, level, msg)
     if level == 'CHECK' or level == 'SKIP' then
         return nil
     else
         gpu.setForeground(LEVEL_COLOR[level])
         term.write('[' .. level .. ']\t')
         gpu.setForeground(0xFFFFFF)
-        term.write(text .. '\n')
+        term.write(text .. '\t')
+        if msg ~= nil then
+            term.write(msg)
+        end
+        term.write('\n')
     end
 end
 
