@@ -24,7 +24,6 @@ local SAVE_FILENAME = 'keepTable.csv'
 --todo enhance robustness when recipes are not updated
 --todo log details to file or network
 --todo multithread
---todo sum all items in me network in case items have same name
 
 
 local LEVEL_COLOR = {
@@ -102,6 +101,19 @@ function filterTable(itemTable)
     return filteredTable
 end
 
+function getItemCount(filter)
+    local count = 0
+    local haveItems = m.getItemsInNetwork(filter)
+    if #haveItems == 0 then
+        return nil
+    else
+        for _, item in ipairs(haveItems) do
+            count = count + item['size']
+        end
+        return count
+    end
+end
+
 function run()
     while 1 do
         handle(event.pull(0))
@@ -110,11 +122,10 @@ function run()
         for ItemLabel, keepNumber in pairs(keepTable) do
             handle(event.pull(0))
             log(ItemLabel, 'CHECK')
-            local haveItem = m.getItemsInNetwork({ label = ItemLabel })[1]
-            if haveItem == nil then
-                log('No recipe', 'FAIL')
+            local haveNumber = getItemCount({ label = ItemLabel })
+            if haveNumber == nil then
+                log(ItemLabel, 'FAIL')
             else
-                local haveNumber = haveItem['size']
                 if haveNumber < keepNumber then
                     local request = m.getCraftables({ label = ItemLabel })[1].request(keepNumber - haveNumber)
                     repeat
@@ -141,10 +152,14 @@ function handle(e, address, char, code, playerName)
 end
 
 function log(text, level)
-    gpu.setForeground(LEVEL_COLOR[level])
-    term.write('[' .. level .. ']\t')
-    gpu.setForeground(0xFFFFFF)
-    term.write(text .. '\n')
+    if level == 'CHECK' or level == 'SKIP' then
+        return nil
+    else
+        gpu.setForeground(LEVEL_COLOR[level])
+        term.write('[' .. level .. ']\t')
+        gpu.setForeground(0xFFFFFF)
+        term.write(text .. '\n')
+    end
 end
 
 function doAction(action)
