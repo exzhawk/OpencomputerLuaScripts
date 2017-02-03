@@ -24,6 +24,7 @@ local SAVE_FILENAME = 'keepTable.csv'
 --todo enhance robustness when recipes are not updated
 --todo log details to file or network
 --todo multithread
+--todo sum all items in me network in case items have same name
 
 
 local LEVEL_COLOR = {
