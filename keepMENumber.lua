@@ -36,10 +36,18 @@ local LEVEL_COLOR = {
 local shell = require('shell')
 local event = require('event')
 local term = require('term')
+local computer = require('computer')
 local component = require('component')
 local m = component.me_controller
 local gpu = component.gpu
 
+function freeMemory()
+    local result = 0
+    for i = 1, 10 do
+        result = result + computer.freeMemory() / 10
+    end
+    return result
+end
 
 function readTable()
     local craftablesNumber = {}
@@ -158,6 +166,7 @@ function run()
                 end
             end
         end
+        freeMemory()
     end
 end
 
@@ -193,6 +202,6 @@ function doAction(action)
     end
 end
 
-gpu.setResolution(60, 48)
+gpu.setResolution(60, 45)
 local args, _ = shell.parse(...)
 doAction(args[1])
