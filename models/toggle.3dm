@@ -1,0 +1,11 @@
+    {
+        label = 'Toggle',
+        emitRedstone = true,
+        collidable = { false, false },
+        shapes = {
+            { 4, 0, 14, 12, 12, 15, texture = 'redstone_torch_off' },
+            { 4, 0, 14, 12, 12, 15, texture = 'redstone_torch_on', state = true },
+            { 4, 0, 15, 12, 12, 16, texture = 'emerald_block' },
+            { 4, 0, 15, 12, 12, 16, texture = 'emerald_block', state = true },
+        }
+    }
