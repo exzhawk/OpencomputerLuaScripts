@@ -4,6 +4,8 @@
 -- Time: 18:00
 --
 
+-- replaced by single telepad control system
+-- an example of seperate working
 local event = require('event')
 local robot = require('robot')
 local serialization=require('serialization')
